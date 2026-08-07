@@ -18,9 +18,7 @@ import {
 import { folderPinCookieName, isFolderUnlocked } from "./pin-access";
 
 function accessLabel(accessLevel: string): string {
-  if (accessLevel === "pin") return "PIN";
-  if (accessLevel === "login") return "Service";
-  return "Öffentlich";
+  return accessLevel === "pin" ? "PIN" : "Öffentlich";
 }
 
 // No auth, no account requirement on this route. Public documents are available
@@ -211,6 +209,11 @@ export default async function MachineViewerPage({
             </form>
             {pin === "invalid" && invalidFolderId === folder.id && (
               <p className="mt-2 text-sm text-red-600">PIN ist nicht gültig.</p>
+            )}
+            {pin === "locked" && invalidFolderId === folder.id && (
+              <p className="mt-2 text-sm text-red-600">
+                Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen.
+              </p>
             )}
           </CardContent>
         </Card>

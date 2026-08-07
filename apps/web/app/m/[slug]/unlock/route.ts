@@ -2,9 +2,20 @@ import { NextResponse } from "next/server";
 import {
   getMachineBySlug,
   getMachineFolderById,
+  recordFolderPinAttempt,
+  tooManyFailedPinAttempts,
   verifyFolderPin,
 } from "@werkpass/core";
 import { folderPinCookieName, folderUnlockToken } from "../pin-access";
+
+function requestIpAddress(request: Request): string | null {
+  if (process.env.TRUST_PROXY_HEADERS !== "true") return null;
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    null
+  );
+}
 
 export async function POST(
   request: Request,
@@ -20,13 +31,33 @@ export async function POST(
     return NextResponse.redirect(new URL("/404", request.url));
   }
 
+  const redirectUrl = new URL(`/m/${slug}`, request.url);
+  const ipAddress = requestIpAddress(request);
   const folder = await getMachineFolderById(folderId);
+
+  if (folder?.machineId === machine.id && folder.accessLevel === "pin") {
+    if (await tooManyFailedPinAttempts(folder.id, ipAddress)) {
+      redirectUrl.searchParams.set("pin", "locked");
+      redirectUrl.searchParams.set("folder", folderId);
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
   const matches =
     folder?.machineId === machine.id &&
     folder.accessLevel === "pin" &&
     verifyFolderPin(pin, folder.pinSalt, folder.pinHash);
 
-  const redirectUrl = new URL(`/m/${slug}`, request.url);
+  if (folder?.machineId === machine.id && folder.accessLevel === "pin") {
+    await recordFolderPinAttempt({
+      folderId: folder.id,
+      organizationId: machine.organizationId,
+      ipAddress,
+      userAgent: request.headers.get("user-agent")?.slice(0, 512) ?? null,
+      success: Boolean(matches),
+    });
+  }
+
   if (!matches) {
     redirectUrl.searchParams.set("pin", "invalid");
     if (folderId) redirectUrl.searchParams.set("folder", folderId);

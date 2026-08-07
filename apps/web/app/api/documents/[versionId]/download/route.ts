@@ -20,8 +20,11 @@ export async function GET(
 
   const machineSlug = version.document.machine.slug;
   const folder = version.document.folder;
+  // Deny by default: anything other than the explicit "public" level must
+  // clear the folder-unlock check, so a future access level added without
+  // updating this route fails closed instead of leaking documents.
   if (
-    version.document.accessLevel === "pin" &&
+    version.document.accessLevel !== "public" &&
     !isFolderUnlocked(
       machineSlug,
       folder.id,
