@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
+import { auth } from "@werkpass/auth";
 import {
   getCurrentVersion,
   getMachineById,
@@ -9,7 +9,7 @@ import {
   getPinChangedByName,
   listDocumentsForFolder,
   listDocumentVersions,
-} from "@lingl-docs/core";
+} from "@werkpass/core";
 import {
   Badge,
   Button,
@@ -20,7 +20,7 @@ import {
   CardTitle,
   Input,
   Label,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { createDocumentAction } from "../../../../actions";
 import { AppShell } from "../../../../app-shell";
 import { UploadVersionForm } from "../../upload-version-form";

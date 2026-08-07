@@ -1,4 +1,4 @@
-import { listApiMachines } from "@lingl-docs/core";
+import { listApiMachines } from "@werkpass/core";
 import {
   apiResponse,
   authorizeApiRequest,

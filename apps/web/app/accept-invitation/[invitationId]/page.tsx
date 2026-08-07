@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
-import { auth } from "@lingl-docs/auth";
-import { getOrganizationInvitationById } from "@lingl-docs/core";
+import { auth } from "@werkpass/auth";
+import { getOrganizationInvitationById } from "@werkpass/core";
 import {
   Badge,
   Button,
@@ -10,7 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { ThemeToggle } from "../../theme-toggle";
 import { acceptInvitationAction } from "./actions";
 

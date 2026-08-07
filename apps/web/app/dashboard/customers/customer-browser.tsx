@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import type { CreateActionResult } from "../actions";
 import { CreateCustomerDialog } from "./create-customer-dialog";
 

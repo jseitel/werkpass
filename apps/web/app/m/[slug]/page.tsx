@@ -4,7 +4,7 @@ import {
   getMachineBySlug,
   listDocumentsForMachine,
   listDocumentVersions,
-} from "@lingl-docs/core";
+} from "@werkpass/core";
 import {
   Badge,
   Button,
@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { folderPinCookieName, isFolderUnlocked } from "./pin-access";
 
 function accessLabel(accessLevel: string): string {

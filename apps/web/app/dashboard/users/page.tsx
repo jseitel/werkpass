@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { MoreHorizontal, Users } from "lucide-react";
-import { auth } from "@lingl-docs/auth";
+import { auth } from "@werkpass/auth";
 import {
   getOrganizationMember,
   listOrganizationInvitations,
   listOrganizationMembers,
-} from "@lingl-docs/core";
+} from "@werkpass/core";
 import {
   Badge,
   Button,
@@ -15,7 +15,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { AppShell } from "../app-shell";
 import {
   cancelInvitationAction,

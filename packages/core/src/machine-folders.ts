@@ -1,4 +1,4 @@
-import { prisma, type MachineFolder } from "@lingl-docs/db";
+import { prisma, type MachineFolder } from "@werkpass/db";
 
 export interface CreateMachineFolderInput {
   machineId: string;

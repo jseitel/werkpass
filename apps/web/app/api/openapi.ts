@@ -41,7 +41,7 @@ export function createOpenApiDocument(origin: string) {
   return {
     openapi: "3.1.0",
     info: {
-      title: "lingl-docs API",
+      title: "werkpass API",
       version: "1.0.0",
       description:
         "Read-only access to customers, machines, and document metadata of one organization.",

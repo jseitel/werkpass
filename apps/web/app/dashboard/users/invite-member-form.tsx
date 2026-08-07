@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, Input, Label } from "@lingl-docs/ui";
+import { Button, Input, Label } from "@werkpass/ui";
 import {
   inviteMemberAction,
   type InviteMemberActionState,

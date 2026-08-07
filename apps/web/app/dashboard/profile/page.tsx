@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
-import { getOrganizationMember, listOrganizationApiKeys } from "@lingl-docs/core";
-import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@lingl-docs/ui";
+import { auth } from "@werkpass/auth";
+import { getOrganizationMember, listOrganizationApiKeys } from "@werkpass/core";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@werkpass/ui";
 import { AppShell } from "../app-shell";
 import { ProfileForm } from "./profile-form";
 import { ApiKeyManager } from "./api-key-manager";

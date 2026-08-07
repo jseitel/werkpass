@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Eye, EyeOff, KeyRound, RotateCcw } from "lucide-react";
-import { Button, Input, Label } from "@lingl-docs/ui";
+import { Button, Input, Label } from "@werkpass/ui";
 import {
   changeMachineFolderPinAction,
   type FolderPinActionState,

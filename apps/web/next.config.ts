@@ -11,10 +11,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   allowedDevOrigins,
   transpilePackages: [
-    "@lingl-docs/ui",
-    "@lingl-docs/core",
-    "@lingl-docs/auth",
-    "@lingl-docs/db",
+    "@werkpass/ui",
+    "@werkpass/core",
+    "@werkpass/auth",
+    "@werkpass/db",
   ],
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input } from "@lingl-docs/ui";
+import { Button, Input } from "@werkpass/ui";
 
 export function InviteLink({ path }: { path: string }) {
   const [copied, setCopied] = useState(false);

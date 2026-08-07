@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@lingl-docs/auth";
+import { auth } from "@werkpass/auth";
 import {
   createCustomer,
   createMachine,
@@ -27,7 +27,7 @@ import {
   createOrganizationApiKey,
   revokeOrganizationApiKey,
   hashFolderPin,
-} from "@lingl-docs/core";
+} from "@werkpass/core";
 
 function hasOrganizationRole(
   member: { role: string } | null,

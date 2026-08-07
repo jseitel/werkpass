@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 
 interface MachineSummary {
   id: string;

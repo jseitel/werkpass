@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { auth } from "@lingl-docs/auth";
-import { generateMachineQrCodePng, getMachineById } from "@lingl-docs/core";
+import { auth } from "@werkpass/auth";
+import { generateMachineQrCodePng, getMachineById } from "@werkpass/core";
 
 export async function GET(
   request: Request,

@@ -11,6 +11,11 @@ const navItems = [
     matches: ["/dashboard/customers", "/dashboard/machines"],
   },
   { href: "/dashboard/users", label: "Nutzer", matches: ["/dashboard/users"] },
+  {
+    href: "/dashboard/settings/sso",
+    label: "Einstellungen",
+    matches: ["/dashboard/settings"],
+  },
 ];
 
 export function DashboardNav() {

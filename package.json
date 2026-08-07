@@ -1,5 +1,5 @@
 {
-  "name": "lingl-docs",
+  "name": "werkpass",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -10,8 +10,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "db:generate": "pnpm --filter @lingl-docs/db generate",
-    "db:migrate": "pnpm --filter @lingl-docs/db migrate"
+    "db:generate": "pnpm --filter @werkpass/db generate",
+    "db:migrate": "pnpm --filter @werkpass/db migrate"
   },
   "devDependencies": {
     "turbo": "^2.3.0",

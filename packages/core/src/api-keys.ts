@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { prisma } from "@lingl-docs/db";
+import { prisma } from "@werkpass/db";
 
 const API_KEY_PREFIX = "ld_live_";
 

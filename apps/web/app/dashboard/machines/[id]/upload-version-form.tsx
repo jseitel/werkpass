@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { requestUploadUrlAction, addDocumentVersionAction } from "../../actions";
-import { Button, Input } from "@lingl-docs/ui";
+import { Button, Input } from "@werkpass/ui";
 
 async function sha256Hex(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();

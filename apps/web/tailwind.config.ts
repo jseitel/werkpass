@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import uiPreset from "@lingl-docs/ui/tailwind-preset";
+import uiPreset from "@werkpass/ui/tailwind-preset";
 
 const config: Config = {
   presets: [uiPreset],

@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
-import { listCustomers, listMachinesForCustomer } from "@lingl-docs/core";
+import { auth } from "@werkpass/auth";
+import { listCustomers, listMachinesForCustomer } from "@werkpass/core";
 import { AppShell } from "../app-shell";
 import { createCustomerAction } from "../actions";
 import { CustomerBrowser } from "./customer-browser";

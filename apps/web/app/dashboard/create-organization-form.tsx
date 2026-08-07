@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@lingl-docs/auth/client";
-import { Button, Input, Label } from "@lingl-docs/ui";
+import { authClient } from "@werkpass/auth/client";
+import { Button, Input, Label } from "@werkpass/ui";
+import { setDefaultOrganizationAction } from "./organization-actions";
 
 function slugify(value: string): string {
   return value
@@ -39,6 +40,13 @@ export function CreateOrganizationForm() {
       return;
     }
 
+    const defaultResult = await setDefaultOrganizationAction(data.id);
+    if (defaultResult.status === "error") {
+      setError(defaultResult.message);
+      return;
+    }
+
+    router.push("/dashboard");
     router.refresh();
   }
 
@@ -49,7 +57,7 @@ export function CreateOrganizationForm() {
         <Input
           id="organization-name"
           type="text"
-          placeholder="Lingl Maschinenbau"
+          placeholder="Muster Maschinenbau"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

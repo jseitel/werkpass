@@ -1,5 +1,5 @@
 {
-  "name": "@lingl-docs/web",
+  "name": "@werkpass/web",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -9,10 +9,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lingl-docs/auth": "workspace:*",
-    "@lingl-docs/core": "workspace:*",
-    "@lingl-docs/db": "workspace:*",
-    "@lingl-docs/ui": "workspace:*",
+    "@werkpass/auth": "workspace:*",
+    "@werkpass/core": "workspace:*",
+    "@werkpass/db": "workspace:*",
+    "@werkpass/ui": "workspace:*",
     "lucide-react": "^1.28.0",
     "next": "^16.3.0",
     "react": "^19.2.0",

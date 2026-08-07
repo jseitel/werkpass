@@ -1,4 +1,4 @@
-import { prisma } from "@lingl-docs/db";
+import { prisma } from "@werkpass/db";
 
 export function listApiCustomers(organizationId: string) {
   return prisma.customer.findMany({

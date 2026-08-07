@@ -1,4 +1,4 @@
-import { listApiCustomers } from "@lingl-docs/core";
+import { listApiCustomers } from "@werkpass/core";
 import {
   apiResponse,
   authorizeApiRequest,

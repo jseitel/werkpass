@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUp } from "@lingl-docs/auth/client";
+import { signUp } from "@werkpass/auth/client";
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   CardTitle,
   Input,
   Label,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { ThemeToggle } from "../theme-toggle";
 
 export default function SignUpPage() {
@@ -49,7 +49,7 @@ export default function SignUpPage() {
     <main className="grid min-h-screen bg-muted/30 lg:grid-cols-[1fr_28rem]">
       <section className="hidden flex-col justify-between bg-primary p-10 text-primary-foreground lg:flex">
         <Link href="/" className="text-sm font-semibold">
-          lingl-docs
+          werkpass
         </Link>
         <div className="max-w-xl">
           <h1 className="text-4xl font-semibold tracking-normal">

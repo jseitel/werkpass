@@ -1,5 +1,5 @@
 {
-  "name": "@lingl-docs/auth",
+  "name": "@werkpass/auth",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,8 @@
     "./next-handler": "./src/next-handler.ts"
   },
   "dependencies": {
-    "@lingl-docs/db": "workspace:*",
+    "@better-auth/sso": "^1.6.26",
+    "@werkpass/db": "workspace:*",
     "better-auth": "^1.2.0"
   },
   "peerDependencies": {

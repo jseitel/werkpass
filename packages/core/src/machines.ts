@@ -1,4 +1,4 @@
-import { prisma, type Machine } from "@lingl-docs/db";
+import { prisma, type Machine } from "@werkpass/db";
 
 export const STANDARD_MACHINE_FOLDERS = [
   { name: "Betriebsanleitungen", systemKey: "manual", accessLevel: "public", position: 10 },

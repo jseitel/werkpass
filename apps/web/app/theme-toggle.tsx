@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@lingl-docs/ui";
+import { Button } from "@werkpass/ui";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");

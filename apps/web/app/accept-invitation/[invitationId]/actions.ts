@@ -2,8 +2,8 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
-import { getOrganizationInvitationById } from "@lingl-docs/core";
+import { auth } from "@werkpass/auth";
+import { getOrganizationInvitationById } from "@werkpass/core";
 
 export async function acceptInvitationAction(formData: FormData) {
   const invitationId = String(formData.get("invitationId") ?? "");

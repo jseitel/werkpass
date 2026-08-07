@@ -2,7 +2,7 @@
 
 import { type ReactNode, useRef, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
-import { Button } from "@lingl-docs/ui";
+import { Button } from "@werkpass/ui";
 import type { CreateActionResult } from "./actions";
 
 interface FormDialogProps {

@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { ThemeToggle } from "./theme-toggle";
 
 export default function HomePage() {
@@ -20,7 +20,7 @@ export default function HomePage() {
               <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
                 LD
               </div>
-              <span className="font-semibold">lingl-docs</span>
+              <span className="font-semibold">werkpass</span>
             </div>
             <ThemeToggle />
           </nav>

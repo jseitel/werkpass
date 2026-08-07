@@ -1,4 +1,4 @@
-import { auth } from "@lingl-docs/auth";
+import { auth } from "@werkpass/auth";
 
 const swaggerDocument = `<!doctype html>
 <html lang="de">
@@ -6,7 +6,7 @@ const swaggerDocument = `<!doctype html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark light" />
-    <title>lingl-docs Swagger API</title>
+    <title>werkpass Swagger API</title>
     <link rel="stylesheet" href="/swagger-assets/swagger-ui.css" />
     <style>
       html { box-sizing: border-box; overflow-y: scroll; }
@@ -14,7 +14,7 @@ const swaggerDocument = `<!doctype html>
       body { margin: 0; background: #0d0f12; }
       .swagger-ui .topbar { background: #111318; border-bottom: 1px solid #2a2e35; padding: 10px 0; }
       .swagger-ui .topbar-wrapper img { display: none; }
-      .swagger-ui .topbar-wrapper::before { color: #f4f5f7; content: "lingl-docs API"; font: 600 16px system-ui, sans-serif; }
+      .swagger-ui .topbar-wrapper::before { color: #f4f5f7; content: "werkpass API"; font: 600 16px system-ui, sans-serif; }
       .swagger-ui, .swagger-ui .info .title, .swagger-ui .info p,
       .swagger-ui .opblock-tag, .swagger-ui table thead tr th,
       .swagger-ui table tbody tr td, .swagger-ui .parameter__name,

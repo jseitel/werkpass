@@ -1,4 +1,4 @@
-import { prisma, type Customer } from "@lingl-docs/db";
+import { prisma, type Customer } from "@werkpass/db";
 
 export interface CreateCustomerInput {
   organizationId: string;

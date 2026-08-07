@@ -24,7 +24,7 @@ import {
   Label,
   buttonVariants,
   cn,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { createApiKeyAction, revokeApiKeyAction } from "../actions";
 import { Toast } from "../toast";
 

@@ -1,4 +1,4 @@
-import { authenticateApiKey } from "@lingl-docs/core";
+import { authenticateApiKey } from "@werkpass/core";
 
 export async function authorizeApiRequest(request: Request, scope = "read") {
   const authorization = request.headers.get("authorization");
@@ -18,7 +18,7 @@ export function unauthorizedApiResponse() {
     { error: { code: "UNAUTHORIZED", message: "API key missing or invalid." } },
     {
       status: 401,
-      headers: { "WWW-Authenticate": 'Bearer realm="lingl-docs-api"' },
+      headers: { "WWW-Authenticate": 'Bearer realm="werkpass-api"' },
     },
   );
 }

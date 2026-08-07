@@ -1,5 +1,5 @@
 {
-  "name": "@lingl-docs/db",
+  "name": "@werkpass/db",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,7 @@
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
+    "sso:encrypt-existing": "node --experimental-strip-types scripts/encrypt-sso-configs.mjs",
     "studio": "prisma studio"
   },
   "dependencies": {

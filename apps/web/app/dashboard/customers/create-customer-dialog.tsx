@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Label } from "@lingl-docs/ui";
+import { Input, Label } from "@werkpass/ui";
 import type { CreateActionResult } from "../actions";
 import { FormDialog } from "../form-dialog";
 

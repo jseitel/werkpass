@@ -1,4 +1,4 @@
-import { prisma, type Document, type DocumentVersion } from "@lingl-docs/db";
+import { prisma, type Document, type DocumentVersion } from "@werkpass/db";
 
 export interface CreateDocumentInput {
   machineId: string;

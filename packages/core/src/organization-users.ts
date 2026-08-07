@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { prisma, type Invitation, type Member } from "@lingl-docs/db";
+import { prisma, type Invitation, type Member } from "@werkpass/db";
 
 export type OrganizationRole = "admin" | "editor" | "viewer";
 
@@ -16,6 +16,46 @@ export function listOrganizationMembers(organizationId: string) {
     where: { organizationId },
     include: { user: true },
     orderBy: { createdAt: "asc" },
+  });
+}
+
+export function listUserOrganizations(userId: string) {
+  return prisma.member.findMany({
+    where: { userId },
+    select: {
+      role: true,
+      organization: {
+        select: { id: true, name: true, slug: true, logo: true },
+      },
+    },
+    orderBy: { organization: { name: "asc" } },
+  });
+}
+
+export async function getDefaultOrganizationId(userId: string): Promise<string | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { defaultOrganizationId: true },
+  });
+  return user?.defaultOrganizationId ?? null;
+}
+
+export async function setDefaultOrganization(input: {
+  userId: string;
+  organizationId: string;
+}): Promise<void> {
+  const membership = await prisma.member.findFirst({
+    where: {
+      userId: input.userId,
+      organizationId: input.organizationId,
+    },
+    select: { id: true },
+  });
+  if (!membership) throw new Error("Du bist kein Mitglied dieser Organisation.");
+
+  await prisma.user.update({
+    where: { id: input.userId },
+    data: { defaultOrganizationId: input.organizationId },
   });
 }
 

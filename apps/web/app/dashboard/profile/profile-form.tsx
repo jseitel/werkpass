@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "@lingl-docs/auth/client";
-import { Button, Input, Label } from "@lingl-docs/ui";
+import { authClient } from "@werkpass/auth/client";
+import { Button, Input, Label } from "@werkpass/ui";
 import { avatarPresets, avatarPresetStyle } from "../avatar-presets";
 import { Toast } from "../toast";
 

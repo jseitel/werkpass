@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getDownloadUrl, getPublishedDocumentVersionForDownload } from "@lingl-docs/core";
+import { getDownloadUrl, getPublishedDocumentVersionForDownload } from "@werkpass/core";
 import {
   folderPinCookieName,
   isFolderUnlocked,

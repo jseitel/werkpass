@@ -1,13 +1,16 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
+import { auth } from "@werkpass/auth";
 import {
   listCustomers,
   listMachinesForCustomer,
   listDocumentsForOrganization,
   listDocumentVersionsForOrganization,
-} from "@lingl-docs/core";
+  getDefaultOrganizationId,
+  listUserOrganizations,
+  setDefaultOrganization,
+} from "@werkpass/core";
 import {
   Badge,
   Card,
@@ -15,7 +18,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@lingl-docs/ui";
+} from "@werkpass/ui";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { AppShell } from "./app-shell";
 
@@ -25,31 +28,82 @@ const revisionDateFormatter = new Intl.DateTimeFormat("de-DE", {
 });
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) redirect("/sign-in");
 
-  const organizationId = session.session.activeOrganizationId;
+  let organizationId = session.session.activeOrganizationId;
 
   if (!organizationId) {
-    return (
-      <AppShell
-        title="Organisation einrichten"
-        description="Lege den Hersteller-Mandanten an, bevor Kunden und Maschinen verwaltet werden."
-      >
-        <Card className="max-w-xl">
-          <CardHeader>
-            <CardTitle>Erste Organisation</CardTitle>
-            <CardDescription>
-              Die Organisation ist eure Firma, die Maschinen und Dokumente
-              bereitstellt.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CreateOrganizationForm />
-          </CardContent>
-        </Card>
-      </AppShell>
+    const [memberships, defaultOrganizationId] = await Promise.all([
+      listUserOrganizations(session.user.id),
+      getDefaultOrganizationId(session.user.id),
+    ]);
+    const organizationIds = memberships.map(
+      ({ organization }) => organization.id,
     );
+    const validDefaultOrganizationId =
+      defaultOrganizationId && organizationIds.includes(defaultOrganizationId)
+        ? defaultOrganizationId
+        : null;
+    const fallbackOrganizationId =
+      validDefaultOrganizationId ??
+      (organizationIds.length === 1 ? organizationIds[0] : null);
+
+    if (fallbackOrganizationId) {
+      if (!validDefaultOrganizationId && organizationIds.length === 1) {
+        await setDefaultOrganization({
+          userId: session.user.id,
+          organizationId: fallbackOrganizationId,
+        });
+      }
+      await auth.api.setActiveOrganization({
+        headers: requestHeaders,
+        body: { organizationId: fallbackOrganizationId },
+      });
+      // Continue with the resolved organization. Redirecting back to this same
+      // route can loop when a new SSO session still exposes a stale active
+      // organization through a browser-side session cache.
+      organizationId = fallbackOrganizationId;
+    } else if (memberships.length > 0) {
+      return (
+        <AppShell
+          title="Organisation auswählen"
+          description="Wähle links eine Organisation aus und markiere deinen Standard mit dem Stern."
+          eyebrow="Organisation"
+        >
+          <Card className="max-w-xl">
+            <CardHeader>
+              <CardTitle>Mehrere Organisationen</CardTitle>
+              <CardDescription>
+                Im Organisationsmenü kannst du den Arbeitsbereich wechseln. Der
+                markierte Favorit wird bei der nächsten Anmeldung automatisch geöffnet.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </AppShell>
+      );
+    } else {
+      return (
+        <AppShell
+          title="Organisation einrichten"
+          description="Lege den Hersteller-Mandanten an, bevor Kunden und Maschinen verwaltet werden."
+        >
+          <Card className="max-w-xl">
+            <CardHeader>
+              <CardTitle>Erste Organisation</CardTitle>
+              <CardDescription>
+                Die Organisation ist eure Firma, die Maschinen und Dokumente
+                bereitstellt.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CreateOrganizationForm />
+            </CardContent>
+          </Card>
+        </AppShell>
+      );
+    }
   }
 
   const [customers, documents, versions] = await Promise.all([

@@ -7,7 +7,7 @@
 //
 // Usage: node infra/garage/configure-cors.mjs
 // Requires the key to have "owner" permission on the bucket:
-//   docker exec lingl-docs-garage /garage bucket allow --owner --key lingl-docs-web lingl-docs-dev
+//   docker exec werkpass-garage /garage bucket allow --owner --key werkpass-web werkpass-dev
 import { S3Client, PutBucketCorsCommand } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
@@ -33,7 +33,7 @@ const allowedOrigins = (
 
 await s3.send(
   new PutBucketCorsCommand({
-    Bucket: process.env.S3_BUCKET ?? "lingl-docs-dev",
+    Bucket: process.env.S3_BUCKET ?? "werkpass-dev",
     CORSConfiguration: {
       CORSRules: [
         {

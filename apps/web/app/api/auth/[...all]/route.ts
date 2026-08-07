@@ -1,1 +1,1 @@
-export { GET, POST } from "@lingl-docs/auth/next-handler";
+export { GET, POST } from "@werkpass/auth/next-handler";

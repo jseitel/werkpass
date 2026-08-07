@@ -1,5 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 import { organizationClient } from "better-auth/client/plugins";
+import { ssoClient } from "@better-auth/sso/client";
 import { ac, roles } from "./permissions";
 
 export const authClient = createAuthClient({
@@ -7,6 +8,11 @@ export const authClient = createAuthClient({
     organizationClient({
       ac,
       roles,
+    }),
+    ssoClient({
+      domainVerification: {
+        enabled: true,
+      },
     }),
   ],
 });

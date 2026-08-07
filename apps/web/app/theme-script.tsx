@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 export function ThemeScript() {
   const script = `
     (function() {
@@ -12,9 +10,15 @@ export function ThemeScript() {
     })();
   `;
 
+  // This is intentionally a native inline script. `next/script` with
+  // beforeInteractive is meant to be declared by the layout itself and is
+  // rendered as a React child here by Next 16, which triggers a warning and
+  // does not reliably execute during client rendering.
   return (
-    <Script id="theme-initializer" strategy="beforeInteractive">
-      {script}
-    </Script>
+    <script
+      id="theme-initializer"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: script }}
+    />
   );
 }

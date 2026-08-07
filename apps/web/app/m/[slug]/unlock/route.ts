@@ -3,7 +3,7 @@ import {
   getMachineBySlug,
   getMachineFolderById,
   verifyFolderPin,
-} from "@lingl-docs/core";
+} from "@werkpass/core";
 import { folderPinCookieName, folderUnlockToken } from "../pin-access";
 
 export async function POST(

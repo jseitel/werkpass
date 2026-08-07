@@ -1,7 +1,8 @@
-import { Badge, Separator } from "@lingl-docs/ui";
+import { Badge, Separator } from "@werkpass/ui";
 import { ThemeToggle } from "../theme-toggle";
 import { AccountMenu } from "./account-menu";
 import { DashboardNav } from "./dashboard-nav";
+import { DashboardOrganizationSwitcher } from "./dashboard-organization-switcher";
 
 interface AppShellProps {
   title: string;
@@ -15,14 +16,8 @@ export function AppShell({ title, description, eyebrow, children }: AppShellProp
     <div className="grid min-h-screen w-full bg-muted/30 lg:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-screen border-r bg-card lg:block">
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center gap-3 border-b px-5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-              LD
-            </div>
-            <div>
-              <div className="font-semibold leading-none">lingl-docs</div>
-              <div className="text-xs text-muted-foreground">Delivery Layer</div>
-            </div>
+          <div className="flex h-16 items-center border-b px-3">
+            <DashboardOrganizationSwitcher />
           </div>
           <DashboardNav />
           <div className="space-y-3 border-t p-3">
@@ -45,7 +40,7 @@ export function AppShell({ title, description, eyebrow, children }: AppShellProp
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
               LD
             </div>
-            <span className="font-semibold">lingl-docs</span>
+            <span className="font-semibold">werkpass</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <ThemeToggle />

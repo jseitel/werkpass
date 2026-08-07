@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
-import { getCustomerById, listMachinesForCustomer } from "@lingl-docs/core";
+import { auth } from "@werkpass/auth";
+import { getCustomerById, listMachinesForCustomer } from "@werkpass/core";
 import { AppShell } from "../../app-shell";
 import { createMachineAction } from "../../actions";
 import { CreateMachineDialog } from "./create-machine-dialog";

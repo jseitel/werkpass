@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 /**
  * Shared Tailwind preset (shadcn/ui CSS-variable theme). Apps extend this via
- * `presets: [require("@lingl-docs/ui/tailwind-preset")]` so the design
+ * `presets: [require("@werkpass/ui/tailwind-preset")]` so the design
  * tokens stay in one place.
  */
 const preset: Partial<Config> = {

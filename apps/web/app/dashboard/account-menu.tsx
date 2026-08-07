@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signOut, useSession } from "@lingl-docs/auth/client";
+import { signOut, useSession } from "@werkpass/auth/client";
 import { ThemeToggle } from "../theme-toggle";
 import { avatarPresetStyle, userInitials } from "./avatar-presets";
 
@@ -49,6 +49,9 @@ export function AccountMenu() {
           </Link>
           <Link className="rounded-md px-2.5 py-2 hover:bg-accent" href="/dashboard/users">
             Nutzerverwaltung
+          </Link>
+          <Link className="rounded-md px-2.5 py-2 hover:bg-accent" href="/dashboard/settings/sso">
+            Organisations-SSO
           </Link>
         </nav>
         <div className="border-t p-1.5">

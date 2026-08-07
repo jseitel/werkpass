@@ -1,9 +1,9 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@lingl-docs/auth";
-import { getMachineById, listMachineFolders } from "@lingl-docs/core";
-import { Badge, Card, CardContent, CardHeader, CardTitle } from "@lingl-docs/ui";
+import { auth } from "@werkpass/auth";
+import { getMachineById, listMachineFolders } from "@werkpass/core";
+import { Badge, Card, CardContent, CardHeader, CardTitle } from "@werkpass/ui";
 import { createMachineFolderAction } from "../../actions";
 import { AppShell } from "../../app-shell";
 import { CreateFolderDialog } from "./create-folder-dialog";
