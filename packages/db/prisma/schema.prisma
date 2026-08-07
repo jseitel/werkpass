@@ -117,20 +117,24 @@ model DocumentVersion {
 }
 
 model User {
-  id             String       @id
-  name           String
-  email          String
-  emailVerified  Boolean      @default(false)
-  image          String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  sessions       Session[]
-  accounts       Account[]
-  members        Member[]
-  invitations    Invitation[]
-  createdApiKeys ApiKey[]     @relation("ApiKeyCreatedBy")
+  id                    String        @id
+  name                  String
+  email                 String
+  emailVerified         Boolean       @default(false)
+  image                 String?
+  defaultOrganizationId String?
+  defaultOrganization   Organization? @relation("DefaultOrganization", fields: [defaultOrganizationId], references: [id], onDelete: SetNull)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  sessions              Session[]
+  accounts              Account[]
+  members               Member[]
+  invitations           Invitation[]
+  ssoProviders          SsoProvider[]
+  createdApiKeys        ApiKey[]      @relation("ApiKeyCreatedBy")
 
   @@unique([email])
+  @@index([defaultOrganizationId])
   @@map("user")
 }
 
@@ -184,15 +188,20 @@ model Verification {
 }
 
 model Organization {
-  id          String       @id
-  name        String
-  slug        String
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  apiKeys     ApiKey[]
+  id                  String       @id
+  name                String
+  slug                String
+  logo                String?
+  createdAt           DateTime
+  metadata            String?
+  // "optional" keeps password login available; "required" enforces Entra ID.
+  ssoMode             String       @default("optional")
+  // Exactly one deliberately selected emergency account may bypass required SSO.
+  ssoBreakGlassUserId String?
+  members             Member[]
+  invitations         Invitation[]
+  apiKeys             ApiKey[]
+  defaultForUsers     User[]       @relation("DefaultOrganization")
 
   @@unique([slug])
   @@map("organization")
@@ -248,4 +257,48 @@ model Invitation {
   @@index([organizationId])
   @@index([email])
   @@map("invitation")
+}
+
+model SsoProvider {
+  id             String   @id
+  issuer         String
+  oidcConfig     String?
+  samlConfig     String?
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId     String   @unique
+  organizationId String?
+  domain         String
+  domainVerified Boolean?
+  domainVerifiedAt DateTime?
+  verificationDueAt DateTime?
+
+  @@index([organizationId])
+  @@map("ssoProvider")
+}
+
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rateLimit")
+}
+
+model SecurityAuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  actorUserId    String?
+  action         String
+  targetType     String?
+  targetId       String?
+  ipAddress      String?
+  userAgent      String?
+  details        Json?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
 }
