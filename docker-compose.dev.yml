@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lingl-docs-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lingl_docs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # S3-compatible object storage for local dev (AGPL, no vendor lock-in).
+  # Config is generated once via infra/garage/garage.local.toml (gitignored,
+  # see infra/garage/garage.toml.example for the template).
+  garage:
+    image: dxflrs/garage:v1.0.1
+    container_name: lingl-docs-garage
+    ports:
+      - "3900:3900" # S3 API
+      - "3901:3901" # RPC
+      - "3902:3902" # web
+      - "3903:3903" # admin
+    volumes:
+      - ./infra/garage/garage.local.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+
+volumes:
+  postgres-data:
+  garage-meta:
+  garage-data:

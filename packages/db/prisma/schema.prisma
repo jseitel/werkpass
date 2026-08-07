@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Domain models -----------------------------------------------------
+// organizationId / createdById reference rows in the `organization` / `user`
+// models below (managed by the Better Auth `organization` plugin). They are
+// kept as plain scalar fields instead of Prisma relations so this file stays
+// valid both before and after `better-auth generate` appends the auth models.
+
+model Customer {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  customerNumber String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  machines Machine[]
+
+  @@index([organizationId])
+}
+
+model Machine {
+  id             String   @id @default(cuid())
+  organizationId String
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  name           String
+  serialNumber   String
+  // Stable slug used in the permanent QR-code URL (/m/{slug}).
+  slug           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  folders   MachineFolder[]
+  documents Document[]
+
+  @@index([organizationId])
+  @@index([customerId])
+}
+
+model MachineFolder {
+  id             String    @id @default(cuid())
+  machineId      String
+  machine        Machine   @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  name           String
+  systemKey      String?
+  accessLevel    String    @default("public")
+  pinHash        String?
+  pinSalt        String?
+  pinChangedAt   DateTime?
+  pinChangedById String?
+  position       Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  documents Document[]
+
+  @@unique([machineId, name])
+  @@unique([machineId, systemKey])
+  @@index([machineId, position])
+}
+
+model Document {
+  id          String        @id @default(cuid())
+  machineId   String
+  machine     Machine       @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  folderId    String
+  folder      MachineFolder @relation(fields: [folderId], references: [id], onDelete: Restrict)
+  title       String
+  // Stable category key for the machine dossier, e.g. manual, safety, wiring, cad.
+  category    String        @default("manual")
+  // public is visible from the QR code; pin requires the machine/document PIN.
+  accessLevel String        @default("public")
+  pinHash     String?
+  pinSalt     String?
+  // BCP-47 language tag.
+  language    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  versions DocumentVersion[]
+
+  @@unique([machineId, title, language])
+  @@index([machineId, accessLevel])
+  @@index([machineId])
+  @@index([folderId])
+}
+
+model DocumentVersion {
+  id            String    @id @default(cuid())
+  documentId    String
+  document      Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  // Human-readable revision label for compliance/audit trails, e.g. "Rev. 03".
+  revision      String    @map("versionLabel")
+  changeNote    String?
+  status        String    @default("published")
+  publishedAt   DateTime?
+  approvedById  String?
+  // Object key in S3-compatible storage; the file itself never lives in Postgres.
+  storageKey    String
+  fileName      String
+  mimeType      String
+  fileSizeBytes Int
+  checksum      String
+  isCurrent     Boolean   @default(false)
+  createdById   String?
+  createdAt     DateTime  @default(now())
+
+  @@index([documentId])
+}
+
+model User {
+  id             String       @id
+  name           String
+  email          String
+  emailVerified  Boolean      @default(false)
+  image          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  members        Member[]
+  invitations    Invitation[]
+  createdApiKeys ApiKey[]     @relation("ApiKeyCreatedBy")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id                   String   @id
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  apiKeys     ApiKey[]
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model ApiKey {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdById    String?
+  createdBy      User?        @relation("ApiKeyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  name           String
+  tokenHash      String       @unique
+  tokenPrefix    String
+  tokenLastFour  String
+  scopes         String       @default("read")
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, revokedAt])
+  @@index([createdById])
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime
+
+  @@index([organizationId])
+  @@index([userId])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String       @default("pending")
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("invitation")
+}
