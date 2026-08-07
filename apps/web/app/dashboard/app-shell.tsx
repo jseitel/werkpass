@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Badge, Separator } from "@lingl-docs/ui";
 import { ThemeToggle } from "../theme-toggle";
 import { AccountMenu } from "./account-menu";
+import { DashboardNav } from "./dashboard-nav";
 
 interface AppShellProps {
   title: string;
@@ -9,12 +9,6 @@ interface AppShellProps {
   eyebrow?: string;
   children: React.ReactNode;
 }
-
-const navItems = [
-  { href: "/dashboard", label: "Home" },
-  { href: "/dashboard/customers", label: "Kunden" },
-  { href: "/dashboard/users", label: "Nutzer" },
-];
 
 export function AppShell({ title, description, eyebrow, children }: AppShellProps) {
   return (
@@ -30,17 +24,7 @@ export function AppShell({ title, description, eyebrow, children }: AppShellProp
               <div className="text-xs text-muted-foreground">Delivery Layer</div>
             </div>
           </div>
-          <nav className="flex flex-1 flex-col gap-1 p-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <DashboardNav />
           <div className="space-y-3 border-t p-3">
             <div className="rounded-lg border bg-muted/40 p-3">
               <div className="flex items-center justify-between">
@@ -56,15 +40,12 @@ export function AppShell({ title, description, eyebrow, children }: AppShellProp
         </div>
       </aside>
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur lg:px-8">
-          <div className="flex items-center gap-3 lg:hidden">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur lg:hidden">
+          <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
               LD
             </div>
             <span className="font-semibold">lingl-docs</span>
-          </div>
-          <div className="hidden text-sm text-muted-foreground lg:block">
-            Maschinenbezogene Dokumentation
           </div>
           <div className="flex items-center gap-2 text-sm">
             <ThemeToggle />

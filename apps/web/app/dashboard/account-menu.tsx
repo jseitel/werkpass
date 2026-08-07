@@ -91,12 +91,19 @@ export function AccountMenu() {
             {user?.email ?? ""}
           </div>
         </div>
-        <span className="text-xs text-muted-foreground group-open:hidden" aria-hidden="true">
-          ^
-        </span>
-        <span className="hidden text-xs text-muted-foreground group-open:inline" aria-hidden="true">
-          v
-        </span>
+        <svg
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 text-muted-foreground"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m5 6 3-3 3 3" />
+          <path d="m5 10 3 3 3-3" />
+        </svg>
       </summary>
     </details>
   );

@@ -109,7 +109,11 @@ export function listDocumentVersionsForOrganization(organizationId: string) {
     include: {
       document: {
         include: {
-          machine: true,
+          machine: {
+            include: {
+              customer: true,
+            },
+          },
         },
       },
     },

@@ -2,12 +2,9 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@lingl-docs/auth";
 import { getCustomerById, listMachinesForCustomer } from "@lingl-docs/core";
-import {
-  Button,
-  Input,
-} from "@lingl-docs/ui";
 import { AppShell } from "../../app-shell";
 import { createMachineAction } from "../../actions";
+import { CreateMachineDialog } from "./create-machine-dialog";
 import { MachineBrowser } from "./machine-browser";
 
 export default async function CustomerDetailPage({
@@ -42,12 +39,10 @@ export default async function CustomerDetailPage({
                 : "Keine Kundennummer hinterlegt"}
             </p>
           </div>
-          <form action={createMachineAction} className="grid gap-3 sm:grid-cols-[14rem_12rem_auto]">
-            <input type="hidden" name="customerId" value={customer.id} />
-            <Input name="name" placeholder="Maschinenname" required />
-            <Input name="serialNumber" placeholder="Seriennummer" required />
-            <Button type="submit">Maschine anlegen</Button>
-          </form>
+          <CreateMachineDialog
+            customerId={customer.id}
+            action={createMachineAction}
+          />
         </div>
 
         <MachineBrowser

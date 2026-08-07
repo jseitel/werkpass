@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@lingl-docs/auth";
 import { getMachineById, listMachineFolders } from "@lingl-docs/core";
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@lingl-docs/ui";
+import { Badge, Card, CardContent, CardHeader, CardTitle } from "@lingl-docs/ui";
 import { createMachineFolderAction } from "../../actions";
 import { AppShell } from "../../app-shell";
+import { CreateFolderDialog } from "./create-folder-dialog";
 
 export default async function MachineDetailPage({
   params,
@@ -70,47 +71,14 @@ export default async function MachineDetailPage({
       </section>
 
       <section className="rounded-lg border bg-card p-5">
-        <div className="mb-5 flex flex-col justify-between gap-4 border-b pb-5 xl:flex-row xl:items-end">
+        <div className="mb-5 flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-semibold">Ordner</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Ordner öffnen, um Dokumente und Revisionen zu bearbeiten.
             </p>
           </div>
-          <form
-            action={createFolderForMachine}
-            className="grid gap-3 sm:grid-cols-[14rem_11rem_11rem_auto] sm:items-end"
-          >
-            <div className="grid gap-2">
-              <Label htmlFor="folder-name">Ordnername</Label>
-              <Input id="folder-name" name="name" placeholder="Eigener Ordner" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="folder-access">Zugriff</Label>
-              <select
-                id="folder-access"
-                name="accessLevel"
-                defaultValue="public"
-                className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-              >
-                <option value="public">Öffentlich</option>
-                <option value="pin">PIN-geschützt</option>
-              </select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="folder-pin">PIN</Label>
-              <Input
-                id="folder-pin"
-                name="pin"
-                type="password"
-                minLength={6}
-                maxLength={64}
-                autoComplete="new-password"
-                placeholder="Bei PIN-Schutz"
-              />
-            </div>
-            <Button type="submit">Ordner anlegen</Button>
-          </form>
+          <CreateFolderDialog action={createFolderForMachine} />
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

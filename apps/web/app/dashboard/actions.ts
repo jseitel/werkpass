@@ -103,31 +103,54 @@ function slugify(value: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-export async function createMachineAction(formData: FormData) {
-  const { organizationId } = await requireOrganizationAdmin();
-  const customerId = String(formData.get("customerId") ?? "");
-  await requireCustomerInOwnOrg(customerId);
-  const name = String(formData.get("name") ?? "");
-  const serialNumber = String(formData.get("serialNumber") ?? "");
-  const slug = `${slugify(name)}-${randomBytes(3).toString("hex")}`;
+export type CreateActionResult = {
+  status: "success" | "error";
+  message: string;
+};
 
-  await createMachine({ organizationId, customerId, name, serialNumber, slug });
-  revalidatePath("/dashboard");
+export async function createMachineAction(
+  formData: FormData,
+): Promise<CreateActionResult> {
+  const customerId = String(formData.get("customerId") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const serialNumber = String(formData.get("serialNumber") ?? "").trim();
+
+  if (!name) return { status: "error", message: "Maschinenname fehlt." };
+  if (!serialNumber) return { status: "error", message: "Seriennummer fehlt." };
+
+  try {
+    const { organizationId } = await requireOrganizationAdmin();
+    await requireCustomerInOwnOrg(customerId);
+    const slug = `${slugify(name)}-${randomBytes(3).toString("hex")}`;
+
+    await createMachine({ organizationId, customerId, name, serialNumber, slug });
+    revalidatePath("/dashboard");
+    return { status: "success", message: "Maschine wurde angelegt." };
+  } catch {
+    return { status: "error", message: "Maschine konnte nicht angelegt werden." };
+  }
 }
 
-export async function createCustomerAction(formData: FormData) {
-  const { organizationId } = await requireOrganizationAdmin();
+export async function createCustomerAction(
+  formData: FormData,
+): Promise<CreateActionResult> {
   const name = String(formData.get("name") ?? "").trim();
   const customerNumber = String(formData.get("customerNumber") ?? "").trim();
 
-  if (!name) throw new Error("Kundenname fehlt");
+  if (!name) return { status: "error", message: "Kundenname fehlt." };
 
-  await createCustomer({
-    organizationId,
-    name,
-    customerNumber: customerNumber || undefined,
-  });
-  revalidatePath("/dashboard");
+  try {
+    const { organizationId } = await requireOrganizationAdmin();
+    await createCustomer({
+      organizationId,
+      name,
+      customerNumber: customerNumber || undefined,
+    });
+    revalidatePath("/dashboard");
+    return { status: "success", message: "Kunde wurde angelegt." };
+  } catch {
+    return { status: "error", message: "Kunde konnte nicht angelegt werden." };
+  }
 }
 
 export async function createDocumentAction(machineId: string, formData: FormData) {
@@ -162,32 +185,40 @@ export async function createDocumentAction(machineId: string, formData: FormData
 export async function createMachineFolderAction(
   machineId: string,
   formData: FormData,
-) {
-  const { userId } = await requireMachineInOwnOrg(machineId);
+): Promise<CreateActionResult> {
   const name = String(formData.get("name") ?? "").trim();
   const accessLevel = String(formData.get("accessLevel") ?? "public");
   const pin = String(formData.get("pin") ?? "").trim();
 
-  if (!name) throw new Error("Ordnername fehlt");
+  if (!name) return { status: "error", message: "Ordnername fehlt." };
   if (accessLevel !== "public" && accessLevel !== "pin") {
-    throw new Error("Ungültige Zugriffsebene");
+    return { status: "error", message: "Ungültige Zugriffsebene." };
   }
   if (accessLevel === "pin" && (pin.length < 6 || pin.length > 64)) {
-    throw new Error("Die PIN muss 6 bis 64 Zeichen lang sein");
+    return {
+      status: "error",
+      message: "Die PIN muss 6 bis 64 Zeichen lang sein.",
+    };
   }
 
-  const pinData = accessLevel === "pin" ? hashFolderPin(pin) : undefined;
+  try {
+    const { userId } = await requireMachineInOwnOrg(machineId);
+    const pinData = accessLevel === "pin" ? hashFolderPin(pin) : undefined;
 
-  await createMachineFolder({
-    machineId,
-    name,
-    accessLevel,
-    pinHash: pinData?.pinHash,
-    pinSalt: pinData?.pinSalt,
-    pinChangedAt: pinData ? new Date() : undefined,
-    pinChangedById: pinData ? userId : undefined,
-  });
-  revalidatePath(`/dashboard/machines/${machineId}`);
+    await createMachineFolder({
+      machineId,
+      name,
+      accessLevel,
+      pinHash: pinData?.pinHash,
+      pinSalt: pinData?.pinSalt,
+      pinChangedAt: pinData ? new Date() : undefined,
+      pinChangedById: pinData ? userId : undefined,
+    });
+    revalidatePath(`/dashboard/machines/${machineId}`);
+    return { status: "success", message: "Ordner wurde angelegt." };
+  } catch {
+    return { status: "error", message: "Ordner konnte nicht angelegt werden." };
+  }
 }
 
 export type FolderPinActionState = {

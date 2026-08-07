@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { MoreHorizontal, Users } from "lucide-react";
 import { auth } from "@lingl-docs/auth";
 import {
   getOrganizationMember,
@@ -49,6 +50,13 @@ function formatRole(role: string | null | undefined): string {
   return roles.map((part) => roleLabels[part] ?? part).join(", ");
 }
 
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("de-DE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
 export default async function UsersPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
@@ -68,78 +76,130 @@ export default async function UsersPage() {
       description="Personen, die diese Organisation verwalten oder Dokumentation pflegen."
       eyebrow="Organisation"
     >
-      <section className="grid gap-6 xl:grid-cols-[1fr_24rem]">
+      <section className="space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Mitglieder</CardTitle>
+          <CardHeader className="border-b">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <Users className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+              Nutzer
+            </CardTitle>
             <CardDescription>
-              Admins verwalten Nutzer, Editor laden Dokus hoch, Viewer lesen nur.
+              Verwalte die Nutzer und Berechtigungen deiner Organisation.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="divide-y rounded-md border">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="grid gap-3 p-4 lg:grid-cols-[1fr_11rem_16rem]"
-                >
-                  <div>
-                    <div className="font-medium">{member.user.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {member.user.email}
-                    </div>
-                  </div>
-                  <div>
-                    <Badge
-                      variant={
-                        canManageOrganizationUsers(member.role)
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {formatRole(member.role)}
-                    </Badge>
-                  </div>
-                  {canManageUsers && member.userId !== session.user.id ? (
-                    <div className="flex flex-wrap gap-2">
-                      <form action={updateMemberRoleAction} className="flex gap-2">
-                        <input type="hidden" name="memberId" value={member.id} />
-                        <select
-                          className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-                          name="role"
-                          defaultValue={
-                            roleList(member.role).find((role) =>
-                              ["admin", "editor", "viewer"].includes(role),
-                            ) ?? "viewer"
-                          }
-                        >
-                          <option value="admin">Admin</option>
-                          <option value="editor">Editor</option>
-                          <option value="viewer">Viewer</option>
-                        </select>
-                        <Button type="submit" size="sm" variant="outline">
-                          Speichern
-                        </Button>
-                      </form>
-                      <form action={removeMemberAction}>
-                        <input type="hidden" name="memberId" value={member.id} />
-                        <Button type="submit" size="sm" variant="outline">
-                          Entfernen
-                        </Button>
-                      </form>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      {member.userId === session.user.id ? "Du" : "Keine Aktion"}
-                    </div>
-                  )}
-                </div>
-              ))}
+          <CardContent className="p-0">
+            <div className="overflow-x-auto xl:overflow-visible">
+              <table className="w-full min-w-[880px] text-left text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="px-6 py-4 font-medium">E-Mail</th>
+                    <th className="px-4 py-4 font-medium">Rolle</th>
+                    <th className="px-4 py-4 font-medium">Status</th>
+                    <th className="px-4 py-4 font-medium">Verifiziert</th>
+                    <th className="px-4 py-4 font-medium">Erstellt am</th>
+                    <th className="px-6 py-4 text-right font-medium">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.map((member) => {
+                    const isCurrentUser = member.userId === session.user.id;
+
+                    return (
+                      <tr key={member.id} className="border-b last:border-0">
+                        <td className="px-6 py-5">
+                          <div className="font-medium">
+                            {member.user.email}
+                            {isCurrentUser && (
+                              <span className="ml-1 font-normal text-muted-foreground">
+                                (Du)
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-0.5 text-xs text-muted-foreground">
+                            {member.user.name}
+                          </div>
+                        </td>
+                        <td className="px-4 py-5">
+                          <Badge variant="secondary">{formatRole(member.role)}</Badge>
+                        </td>
+                        <td className="px-4 py-5">
+                          <Badge className="border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" variant="outline">
+                            Aktiv
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-5">
+                          {member.user.emailVerified ? "Ja" : "Nein"}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-5 text-muted-foreground">
+                          {formatDate(member.createdAt)}
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          {canManageUsers && !isCurrentUser ? (
+                            <details
+                              name="user-actions"
+                              className="group relative inline-block text-left"
+                            >
+                              <summary
+                                className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden"
+                                aria-label={`Aktionen für ${member.user.email}`}
+                              >
+                                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                              </summary>
+                              <div className="absolute bottom-full right-0 z-30 mb-2 w-72 rounded-md border bg-card p-3 text-card-foreground shadow-xl">
+                                <div className="space-y-3">
+                                  <form action={updateMemberRoleAction} className="space-y-2">
+                                    <input type="hidden" name="memberId" value={member.id} />
+                                    <label className="block text-xs font-medium" htmlFor={`role-${member.id}`}>
+                                      Rolle ändern
+                                    </label>
+                                    <div className="flex gap-2">
+                                      <select
+                                        id={`role-${member.id}`}
+                                        className="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                                        name="role"
+                                        defaultValue={
+                                          roleList(member.role).find((role) =>
+                                            ["admin", "editor", "viewer"].includes(role),
+                                          ) ?? "viewer"
+                                        }
+                                      >
+                                        <option value="admin">Admin</option>
+                                        <option value="editor">Editor</option>
+                                        <option value="viewer">Viewer</option>
+                                      </select>
+                                      <Button type="submit" size="sm" variant="outline">
+                                        Speichern
+                                      </Button>
+                                    </div>
+                                  </form>
+                                  <form action={removeMemberAction} className="border-t pt-3">
+                                    <input type="hidden" name="memberId" value={member.id} />
+                                    <Button type="submit" size="sm" variant="outline" className="w-full">
+                                      Nutzer entfernen
+                                    </Button>
+                                  </form>
+                                </div>
+                              </div>
+                            </details>
+                          ) : (
+                            <span
+                              className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground/60"
+                              aria-label="Keine Aktionen verfügbar"
+                            >
+                              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex flex-col gap-6">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Einladen</CardTitle>

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@lingl-docs/auth";
 import {
@@ -17,6 +18,11 @@ import {
 } from "@lingl-docs/ui";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { AppShell } from "./app-shell";
+
+const revisionDateFormatter = new Intl.DateTimeFormat("de-DE", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -63,6 +69,30 @@ export default async function DashboardPage() {
   );
   const currentVersions = versions.filter((version) => version.isCurrent);
   const recentVersions = versions.slice(0, 5);
+  const statistics: Array<{
+    label: string;
+    value: number;
+    href?: string;
+  }> = [
+    {
+      label: "Kunden",
+      value: customers.length,
+      href: "/dashboard/customers",
+    },
+    {
+      label: "Maschinenakten",
+      value: machineCount,
+      href: "/dashboard/customers",
+    },
+    {
+      label: "Dokumenttypen",
+      value: documents.length,
+    },
+    {
+      label: "Aktuelle Revisionen",
+      value: currentVersions.length,
+    },
+  ];
 
   return (
     <AppShell
@@ -71,33 +101,38 @@ export default async function DashboardPage() {
       eyebrow="Übersicht"
     >
       <section className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Kunden</CardDescription>
-            <CardTitle className="text-3xl">{customers.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Maschinenakten</CardDescription>
-            <CardTitle className="text-3xl">{machineCount}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Dokumenttypen</CardDescription>
-            <CardTitle className="text-3xl">{documents.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Aktuelle Revisionen</CardDescription>
-            <CardTitle className="text-3xl">{currentVersions.length}</CardTitle>
-          </CardHeader>
-        </Card>
+        {statistics.map((statistic) => {
+          const card = (
+            <Card
+              className={
+                statistic.href
+                  ? "h-16 transition-colors hover:border-foreground/30 hover:bg-muted/50"
+                  : "h-16"
+              }
+            >
+              <CardHeader className="h-full flex-row items-center justify-between gap-3 p-4">
+                <CardDescription>{statistic.label}</CardDescription>
+                <CardTitle className="text-2xl">{statistic.value}</CardTitle>
+              </CardHeader>
+            </Card>
+          );
+
+          return statistic.href ? (
+            <Link
+              key={statistic.label}
+              href={statistic.href}
+              className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label={`${statistic.label}: ${statistic.value}`}
+            >
+              {card}
+            </Link>
+          ) : (
+            <div key={statistic.label}>{card}</div>
+          );
+        })}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_24rem]">
+      <section id="revisions" className="scroll-mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Letzte Revisionen</CardTitle>
@@ -105,61 +140,75 @@ export default async function DashboardPage() {
               Neueste Uploads über alle Maschinenakten hinweg.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="divide-y rounded-md border">
-              {recentVersions.map((version) => (
-                <a
-                  key={version.id}
-                  className="grid gap-2 p-4 text-sm hover:bg-muted/50 md:grid-cols-[10rem_1fr_9rem]"
-                  href={`/dashboard/machines/${version.document.machineId}`}
-                >
-                  <span className="font-medium">{version.revision}</span>
-                  <span>
-                    {version.document.title}
-                    <span className="ml-2 text-muted-foreground">
-                      {version.document.machine.name}
-                    </span>
-                  </span>
-                  <Badge variant={version.isCurrent ? "default" : "secondary"}>
-                    {version.isCurrent ? "Aktuell" : "Archiv"}
-                  </Badge>
-                </a>
-              ))}
-              {recentVersions.length === 0 && (
-                <div className="p-6 text-sm text-muted-foreground">
-                  Noch keine Revisionen hochgeladen.
-                </div>
-              )}
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1050px] text-left text-sm">
+                <thead>
+                  <tr className="border-y">
+                    <th className="px-6 py-3 font-medium">Revision</th>
+                    <th className="px-4 py-3 font-medium">Dokument</th>
+                    <th className="px-4 py-3 font-medium">Maschine</th>
+                    <th className="px-4 py-3 font-medium">Kunde</th>
+                    <th className="px-4 py-3 font-medium">Hochgeladen am</th>
+                    <th className="px-6 py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentVersions.map((version) => (
+                    <tr
+                      key={version.id}
+                      className="border-b last:border-b-0 hover:bg-muted/50"
+                    >
+                      <td className="whitespace-nowrap px-6 py-4 font-medium">
+                        {version.revision}
+                      </td>
+                      <td className="px-4 py-4">
+                        <Link
+                          className="font-medium hover:underline"
+                          href={`/dashboard/machines/${version.document.machineId}/folders/${version.document.folderId}`}
+                        >
+                          {version.document.title}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Link
+                          className="text-muted-foreground hover:text-foreground hover:underline"
+                          href={`/dashboard/machines/${version.document.machineId}`}
+                        >
+                          {version.document.machine.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Link
+                          className="text-muted-foreground hover:text-foreground hover:underline"
+                          href={`/dashboard/customers/${version.document.machine.customerId}`}
+                        >
+                          {version.document.machine.customer.name}
+                        </Link>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                        {revisionDateFormatter.format(version.createdAt)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge variant={version.isCurrent ? "default" : "secondary"}>
+                          {version.isCurrent ? "Aktuell" : "Archiv"}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                  {recentVersions.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-6 py-8 text-center text-muted-foreground"
+                      >
+                        Noch keine Revisionen hochgeladen.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Schnellzugriff</CardTitle>
-            <CardDescription>
-              Die Hauptnavigation trennt Stammdaten und Arbeit.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <a
-              className="block rounded-md border p-3 text-sm hover:bg-muted/50"
-              href="/dashboard/customers"
-            >
-              <span className="font-medium">Kunden</span>
-              <span className="mt-1 block text-muted-foreground">
-                Kunden anlegen und Maschinenlisten öffnen.
-              </span>
-            </a>
-            <a
-              className="block rounded-md border p-3 text-sm hover:bg-muted/50"
-              href="/dashboard/customers"
-            >
-              <span className="font-medium">Maschinenakten</span>
-              <span className="mt-1 block text-muted-foreground">
-                Dokumente, Revisionen, PIN und QR je Maschine.
-              </span>
-            </a>
           </CardContent>
         </Card>
       </section>

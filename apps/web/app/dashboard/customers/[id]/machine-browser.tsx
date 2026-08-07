@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ChevronRight, Factory, Search } from "lucide-react";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -16,7 +15,6 @@ interface MachineSummary {
   id: string;
   name: string;
   serialNumber: string;
-  slug: string;
 }
 
 export function MachineBrowser({ machines }: { machines: MachineSummary[] }) {
@@ -66,10 +64,10 @@ export function MachineBrowser({ machines }: { machines: MachineSummary[] }) {
           <Link
             key={machine.id}
             href={`/dashboard/machines/${machine.id}`}
-            className="block"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Card className="h-full min-h-36 transition-colors hover:bg-muted/50">
-              <CardHeader>
+            <Card className="h-full min-h-28 transition-colors hover:bg-muted/50">
+              <CardHeader className="h-full justify-center">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
                     <Factory className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -81,9 +79,6 @@ export function MachineBrowser({ machines }: { machines: MachineSummary[] }) {
                   <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
                 </div>
               </CardHeader>
-              <CardContent className="truncate text-xs text-muted-foreground">
-                QR-Pfad /m/{machine.slug}
-              </CardContent>
             </Card>
           </Link>
         ))}
