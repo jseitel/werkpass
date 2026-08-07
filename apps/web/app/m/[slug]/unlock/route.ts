@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
 import {
+  clientIpAddress,
   getMachineBySlug,
   getMachineFolderById,
   recordFolderPinAttempt,
   tooManyFailedPinAttempts,
   verifyFolderPin,
 } from "@werkpass/core";
-import { folderPinCookieName, folderUnlockToken } from "../pin-access";
-
-function requestIpAddress(request: Request): string | null {
-  if (process.env.TRUST_PROXY_HEADERS !== "true") return null;
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    null
-  );
-}
+import {
+  FOLDER_UNLOCK_TTL_SECONDS,
+  folderPinCookieName,
+  folderUnlockToken,
+} from "../pin-access";
 
 export async function POST(
   request: Request,
@@ -32,7 +28,7 @@ export async function POST(
   }
 
   const redirectUrl = new URL(`/m/${slug}`, request.url);
-  const ipAddress = requestIpAddress(request);
+  const ipAddress = clientIpAddress(request.headers);
   const folder = await getMachineFolderById(folderId);
 
   if (folder?.machineId === machine.id && folder.accessLevel === "pin") {
@@ -69,11 +65,11 @@ export async function POST(
     folderPinCookieName(folder.id),
     folderUnlockToken(slug, folder.id, folder.pinHash!),
     {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: FOLDER_UNLOCK_TTL_SECONDS,
     },
   );
   return response;

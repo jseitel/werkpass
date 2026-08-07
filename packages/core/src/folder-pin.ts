@@ -22,6 +22,7 @@ export function verifyFolderPin(
 
 const PIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 const PIN_ATTEMPT_LIMIT = 10;
+const PIN_ATTEMPT_FOLDER_LIMIT = 50;
 
 /**
  * Folder PINs have no server-side complexity floor beyond length, so without
@@ -30,20 +31,37 @@ const PIN_ATTEMPT_LIMIT = 10;
  * to a single shared bucket per folder when the IP can't be trusted, see
  * TRUST_PROXY_HEADERS) using the existing security audit log rather than a
  * new table.
+ *
+ * A second, address-independent ceiling per folder backs that up: the source
+ * address is only ever as trustworthy as the proxy chain reporting it, and a
+ * caller who finds a way to vary it must still run into a hard limit.
  */
 export async function tooManyFailedPinAttempts(
   folderId: string,
   ipAddress: string | null,
 ): Promise<boolean> {
-  const count = await prisma.securityAuditLog.count({
-    where: {
-      action: "folder.pin.failed",
-      targetId: folderId,
-      ipAddress,
-      createdAt: { gte: new Date(Date.now() - PIN_ATTEMPT_WINDOW_MS) },
-    },
-  });
-  return count >= PIN_ATTEMPT_LIMIT;
+  const since = new Date(Date.now() - PIN_ATTEMPT_WINDOW_MS);
+  const [addressCount, folderCount] = await Promise.all([
+    prisma.securityAuditLog.count({
+      where: {
+        action: "folder.pin.failed",
+        targetId: folderId,
+        ipAddress,
+        createdAt: { gte: since },
+      },
+    }),
+    prisma.securityAuditLog.count({
+      where: {
+        action: "folder.pin.failed",
+        targetId: folderId,
+        createdAt: { gte: since },
+      },
+    }),
+  ]);
+
+  return (
+    addressCount >= PIN_ATTEMPT_LIMIT || folderCount >= PIN_ATTEMPT_FOLDER_LIMIT
+  );
 }
 
 export async function recordFolderPinAttempt(input: {

@@ -27,6 +27,11 @@ import {
   createOrganizationApiKey,
   revokeOrganizationApiKey,
   hashFolderPin,
+  buildDocumentStorageKey,
+  headStoredObject,
+  isOwnDocumentStorageKey,
+  normalizeUploadContentType,
+  organizationRoleList,
 } from "@werkpass/core";
 
 function hasOrganizationRole(
@@ -34,10 +39,7 @@ function hasOrganizationRole(
   allowedRoles: string[],
 ): boolean {
   if (!member) return false;
-  const roles = member.role
-    .split(",")
-    .map((role) => role.trim())
-    .filter(Boolean);
+  const roles = organizationRoleList(member.role);
   return allowedRoles.some((role) => roles.includes(role));
 }
 
@@ -64,7 +66,11 @@ async function requireOrganizationAdmin() {
   if (!hasOrganizationRole(member, ["owner", "admin"])) {
     throw new Error("Nur Admins können Nutzer verwalten.");
   }
-  return { userId, organizationId };
+  return {
+    userId,
+    organizationId,
+    isOwner: hasOrganizationRole(member, ["owner"]),
+  };
 }
 
 async function requireDocumentEditor() {
@@ -282,10 +288,17 @@ export async function requestUploadUrlAction(
   if (!document) throw new Error("Dokument nicht gefunden");
   await requireMachineInOwnOrg(document.machineId);
 
-  const storageKey = `documents/${documentId}/${Date.now()}-${fileName}`;
-  const uploadUrl = await getUploadUrl(storageKey, contentType);
-  return { uploadUrl, storageKey };
+  // The key is derived here, never taken from the caller: the public download
+  // endpoint signs whatever key a version row holds, so the key namespace has
+  // to stay under this server's control. The normalized content type is part
+  // of the signature and is handed back so the browser can send it verbatim.
+  const storageKey = buildDocumentStorageKey(documentId, fileName);
+  const normalizedContentType = normalizeUploadContentType(contentType);
+  const uploadUrl = await getUploadUrl(storageKey, normalizedContentType);
+  return { uploadUrl, storageKey, contentType: normalizedContentType };
 }
+
+const CHECKSUM_PATTERN = /^[a-f0-9]{64}$/i;
 
 export async function addDocumentVersionAction(input: {
   documentId: string;
@@ -300,10 +313,32 @@ export async function addDocumentVersionAction(input: {
   if (!document) throw new Error("Dokument nicht gefunden");
   await requireMachineInOwnOrg(document.machineId);
 
+  // Authorizing the document is not enough - the storage key travels through
+  // the browser, so a caller could otherwise bind this version to any object
+  // in the shared bucket and have the public download route sign it.
+  if (!isOwnDocumentStorageKey(input.documentId, input.storageKey)) {
+    throw new Error("Ungültiger Speicherschlüssel");
+  }
+  if (!CHECKSUM_PATTERN.test(input.checksum)) {
+    throw new Error("Ungültige Prüfsumme");
+  }
+
+  // Size and content type are read back from the object store rather than
+  // believed: this also proves the upload actually happened.
+  const stored = await headStoredObject(input.storageKey);
+  if (!stored) {
+    throw new Error("Die hochgeladene Datei wurde nicht gefunden");
+  }
+
   const existingCount = await countDocumentVersions(input.documentId);
 
   await addDocumentVersion({
-    ...input,
+    documentId: input.documentId,
+    storageKey: input.storageKey,
+    fileName: input.fileName,
+    checksum: input.checksum.toLowerCase(),
+    mimeType: stored.contentType,
+    fileSizeBytes: stored.contentLength,
     revision: `Rev. ${String(existingCount + 1).padStart(2, "0")}`,
     changeNote: input.changeNote?.trim() || undefined,
   });
@@ -355,23 +390,33 @@ export async function inviteMemberAction(
 }
 
 export async function updateMemberRoleAction(formData: FormData) {
-  const { organizationId } = await requireOrganizationAdmin();
+  const { organizationId, isOwner } = await requireOrganizationAdmin();
   const memberId = String(formData.get("memberId") ?? "");
   const role = String(formData.get("role") ?? "viewer");
 
   if (!memberId) throw new Error("Mitglied fehlt");
   if (!isOrganizationRole(role)) throw new Error("Ungültige Rolle");
 
-  await updateOrganizationMemberRole({ organizationId, memberId, role });
+  await updateOrganizationMemberRole({
+    organizationId,
+    memberId,
+    role,
+    actorIsOwner: isOwner,
+  });
   revalidatePath("/dashboard/users");
 }
 
 export async function removeMemberAction(formData: FormData) {
-  const { userId, organizationId } = await requireOrganizationAdmin();
+  const { userId, organizationId, isOwner } = await requireOrganizationAdmin();
   const memberId = String(formData.get("memberId") ?? "");
   if (!memberId) throw new Error("Mitglied fehlt");
 
-  await removeOrganizationMember({ organizationId, memberId, currentUserId: userId });
+  await removeOrganizationMember({
+    organizationId,
+    memberId,
+    currentUserId: userId,
+    actorIsOwner: isOwner,
+  });
   revalidatePath("/dashboard/users");
 }
 

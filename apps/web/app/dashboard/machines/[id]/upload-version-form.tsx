@@ -28,16 +28,21 @@ export function UploadVersionForm({ documentId }: { documentId: string }) {
     setBusy(true);
     setError(null);
     try {
-      const contentType = file.type || "application/octet-stream";
-      const [{ uploadUrl, storageKey }, checksum] = await Promise.all([
-        requestUploadUrlAction(documentId, file.name, contentType),
+      const [upload, checksum] = await Promise.all([
+        requestUploadUrlAction(
+          documentId,
+          file.name,
+          file.type || "application/octet-stream",
+        ),
         sha256Hex(file),
       ]);
 
-      const putRes = await fetch(uploadUrl, {
+      // The server decides the key and the content type; both are part of the
+      // signature, so the PUT has to echo what it was given.
+      const putRes = await fetch(upload.uploadUrl, {
         method: "PUT",
         body: file,
-        headers: { "Content-Type": contentType },
+        headers: { "Content-Type": upload.contentType },
       });
       if (!putRes.ok) {
         throw new Error(`Upload fehlgeschlagen (${putRes.status})`);
@@ -46,9 +51,9 @@ export function UploadVersionForm({ documentId }: { documentId: string }) {
       await addDocumentVersionAction({
         documentId,
         changeNote,
-        storageKey,
+        storageKey: upload.storageKey,
         fileName: file.name,
-        mimeType: contentType,
+        mimeType: upload.contentType,
         fileSizeBytes: file.size,
         checksum,
       });

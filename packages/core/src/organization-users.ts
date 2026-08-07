@@ -11,6 +11,18 @@ export function isOrganizationRole(value: string): value is OrganizationRole {
   return value === "admin" || value === "editor" || value === "viewer";
 }
 
+/** Membership roles are stored as a comma-separated list. */
+export function organizationRoleList(role: string): string[] {
+  return role
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+export function isOrganizationOwnerRole(role: string): boolean {
+  return organizationRoleList(role).includes("owner");
+}
+
 export function listOrganizationMembers(organizationId: string) {
   return prisma.member.findMany({
     where: { organizationId },
@@ -123,11 +135,38 @@ export function getOrganizationInvitationById(id: string) {
   });
 }
 
-export function updateOrganizationMemberRole(input: {
+/**
+ * Loads the member a mutation targets and refuses when an admin reaches for an
+ * owner. Admins may manage the rest of the organization, but ownership has to
+ * stay out of their reach - otherwise an admin can demote or delete the owner
+ * and take sole control of the organization, its documents and its SSO setup.
+ * The Entra role sync guards ownership the same way.
+ */
+async function requireManageableMember(input: {
+  organizationId: string;
+  memberId: string;
+  actorIsOwner: boolean;
+}): Promise<Member> {
+  const member = await prisma.member.findUnique({
+    where: { id: input.memberId },
+  });
+  if (!member || member.organizationId !== input.organizationId) {
+    throw new Error("Mitglied nicht gefunden.");
+  }
+  if (isOrganizationOwnerRole(member.role) && !input.actorIsOwner) {
+    throw new Error("Nur Owner können die Inhaberrolle ändern.");
+  }
+  return member;
+}
+
+export async function updateOrganizationMemberRole(input: {
   organizationId: string;
   memberId: string;
   role: OrganizationRole;
+  actorIsOwner: boolean;
 }): Promise<Member> {
+  await requireManageableMember(input);
+
   return prisma.member.update({
     where: { id: input.memberId, organizationId: input.organizationId },
     data: { role: input.role },
@@ -138,11 +177,9 @@ export async function removeOrganizationMember(input: {
   organizationId: string;
   memberId: string;
   currentUserId: string;
+  actorIsOwner: boolean;
 }): Promise<void> {
-  const member = await prisma.member.findUnique({ where: { id: input.memberId } });
-  if (!member || member.organizationId !== input.organizationId) {
-    throw new Error("Mitglied nicht gefunden.");
-  }
+  const member = await requireManageableMember(input);
   if (member.userId === input.currentUserId) {
     throw new Error("Du kannst dich nicht selbst entfernen.");
   }

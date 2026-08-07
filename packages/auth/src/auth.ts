@@ -166,12 +166,39 @@ function providerIdForOrganization(organizationId: string): string {
   return `entra-${organizationId.toLowerCase().replace(/[^a-z0-9-]/g, "-")}`;
 }
 
+const trustedProxies = (process.env.TRUSTED_PROXIES ?? "")
+  .split(",")
+  .map((entry) => entry.trim())
+  .filter(Boolean);
+
+/**
+ * Mirrors `clientIpAddress` in @werkpass/core - duplicated because this package
+ * deliberately stays free of a dependency on core. `X-Forwarded-For` is written
+ * by the client and only appended to by proxies, so the left-most entry is
+ * whatever the caller typed. Counting from the right reads the entry our own
+ * proxy wrote; a chain shorter than the proxy count did not come through it.
+ */
+function forwardedIpAddress(request?: Request): string | null {
+  if (process.env.TRUST_PROXY_HEADERS !== "true") return null;
+
+  const forwarded = request?.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const hops = forwarded
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    const configured = Number.parseInt(process.env.TRUSTED_PROXY_HOPS ?? "", 10);
+    const index =
+      hops.length - (Number.isInteger(configured) && configured > 0 ? configured : 1);
+    return index >= 0 ? hops[index] ?? null : null;
+  }
+
+  return request?.headers.get("x-real-ip")?.trim() || null;
+}
+
 function requestMetadata(request?: Request) {
   return {
-    ipAddress:
-      request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      request?.headers.get("x-real-ip") ??
-      null,
+    ipAddress: forwardedIpAddress(request),
     userAgent: request?.headers.get("user-agent")?.slice(0, 512) ?? null,
   };
 }
@@ -259,7 +286,14 @@ export const auth = betterAuth({
     ipAddress: {
       disableIpTracking: false,
       ...(process.env.TRUST_PROXY_HEADERS === "true"
-        ? { ipAddressHeaders: ["x-forwarded-for", "x-real-ip"] }
+        ? {
+            ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+            // Without the proxy CIDRs Better Auth refuses to read a multi-value
+            // X-Forwarded-For at all (correctly - the left-most entry is
+            // client-written) and collapses every caller into one shared rate
+            // limit bucket.
+            ...(trustedProxies.length > 0 ? { trustedProxies } : {}),
+          }
         : {}),
     },
   },
