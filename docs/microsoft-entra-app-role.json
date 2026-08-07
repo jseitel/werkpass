@@ -1,0 +1,10 @@
+[
+  {
+    "allowedMemberTypes": ["User"],
+    "description": "Administriert Benutzer, SSO und Einstellungen in Werkpass.",
+    "displayName": "Werkpass Administrator",
+    "id": "537cfd84-0fb5-4d1e-8e19-567748ed6520",
+    "isEnabled": true,
+    "value": "Werkpass.Admin"
+  }
+]

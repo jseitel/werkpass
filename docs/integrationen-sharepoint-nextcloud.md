@@ -5,12 +5,12 @@ Stand: 2026-08-07
 
 ## Ziel
 
-lingl-docs ersetzt nicht die bestehende Dokumentenverwaltung eines Kunden. SharePoint, Nextcloud oder ein internes Netzlaufwerk bleibt die führende Quelle. lingl-docs übernimmt die kontrollierte, maschinenbezogene Bereitstellung für Kunden und Service.
+werkpass ersetzt nicht die bestehende Dokumentenverwaltung eines Kunden. SharePoint, Nextcloud oder ein internes Netzlaufwerk bleibt die führende Quelle. werkpass übernimmt die kontrollierte, maschinenbezogene Bereitstellung für Kunden und Service.
 
 Der gewünschte Ablauf lautet:
 
 1. Ein Dokument wird in der bestehenden Quelle bearbeitet und freigegeben.
-2. lingl-docs erkennt die Änderung.
+2. werkpass erkennt die Änderung.
 3. Die Datei wird einer Maschine, einem Ordner und einem Dokument zugeordnet.
 4. Nur eine tatsächlich neue Datei wird als neue Revision übernommen.
 5. Die vorherige Revision bleibt archiviert.
@@ -18,11 +18,11 @@ Der gewünschte Ablauf lautet:
 
 ## Produktversprechen
 
-> lingl-docs ersetzt nicht Ihre Dokumentenverwaltung. SharePoint, Nextcloud oder Ihr Netzlaufwerk bleibt die zentrale Quelle. Sobald Sie ein Dokument freigeben, synchronisiert lingl-docs die neue Revision in die zugehörige Maschinenakte. Kunden und Service greifen weiterhin über denselben QR-Code auf die aktuelle Dokumentation zu. Frühere Revisionen bleiben nachvollziehbar archiviert.
+> werkpass ersetzt nicht Ihre Dokumentenverwaltung. SharePoint, Nextcloud oder Ihr Netzlaufwerk bleibt die zentrale Quelle. Sobald Sie ein Dokument freigeben, synchronisiert werkpass die neue Revision in die zugehörige Maschinenakte. Kunden und Service greifen weiterhin über denselben QR-Code auf die aktuelle Dokumentation zu. Frühere Revisionen bleiben nachvollziehbar archiviert.
 
 Kurzform:
 
-> Dokumente dort verwalten, wo sie bereits liegen – mit lingl-docs sicher und maschinenbezogen bereitstellen.
+> Dokumente dort verwalten, wo sie bereits liegen – mit werkpass sicher und maschinenbezogen bereitstellen.
 
 ## Bereits vorhandene Grundlage
 
@@ -199,7 +199,7 @@ Es müssen drei unterschiedliche Begriffe getrennt werden:
 
 | Begriff | Beispiel | Zweck |
 |---|---|---|
-| Interne Sequenz | `1` | Reihenfolge der Importe in lingl-docs |
+| Interne Sequenz | `1` | Reihenfolge der Importe in werkpass |
 | Fachliche Revision | `V4` | Für Kunden und Service sichtbare Dokumentrevision |
 | Externe Versions-ID | SharePoint-Version oder Nextcloud-Zeitstempel | Idempotenz und Nachvollziehbarkeit der Quelle |
 
@@ -221,7 +221,7 @@ Ein mögliches Dateinamensmuster erkennt zum Beispiel `V4`, `v04`, `Rev. 4` oder
 
 Beim ersten Import von `doku v4.pdf` werden V1 bis V3 nicht künstlich erzeugt. Es gibt zwei mögliche Importmodi:
 
-- **Nur aktueller Stand:** V4 wird als erste in lingl-docs vorhandene Revision importiert.
+- **Nur aktueller Stand:** V4 wird als erste in werkpass vorhandene Revision importiert.
 - **Historischer Erstimport:** vorhandene Quellversionen werden von alt nach neu übernommen.
 
 Vor einer Connector-Integration sollte die aktuelle Revisionsvergabe verbessert werden. Derzeit zählt die Server Action bestehende Versionen und erzeugt anschließend `Rev. XX`. Bei parallelem manuellem und automatischem Upload kann dadurch dieselbe Nummer entstehen. Die Sequenzvergabe gehört zusammen mit dem Anlegen der Version in eine Datenbanktransaktion und sollte durch einen Unique Constraint geschützt werden.
@@ -334,7 +334,7 @@ Später können Nextcloud-Systemtags oder eigene Metadaten als alternative Zuord
 
 ## Netzlaufwerk-Integration
 
-Ein gehostetes lingl-docs kann nicht direkt auf ein internes SMB-Netzlaufwerk zugreifen. Ein eingehend erreichbarer SMB-Port wäre außerdem ein erhebliches Sicherheitsrisiko.
+Ein gehostetes werkpass kann nicht direkt auf ein internes SMB-Netzlaufwerk zugreifen. Ein eingehend erreichbarer SMB-Port wäre außerdem ein erhebliches Sicherheitsrisiko.
 
 Benötigt wird ein kleiner lokaler Connector:
 
@@ -387,26 +387,26 @@ Prüfreihenfolge:
 
 Ein verschobenes oder umbenanntes Dokument bleibt über seine externe Datei-ID mit demselben lokalen Dokument verbunden.
 
-Eine externe Löschung löscht niemals historische Revisionen in lingl-docs. Stattdessen wird das Binding beispielsweise als `missing` oder `removed_at_source` markiert. Ein Administrator entscheidet, ob die aktuelle Veröffentlichung zurückgezogen wird.
+Eine externe Löschung löscht niemals historische Revisionen in werkpass. Stattdessen wird das Binding beispielsweise als `missing` oder `removed_at_source` markiert. Ein Administrator entscheidet, ob die aktuelle Veröffentlichung zurückgezogen wird.
 
 ## Betriebsarten der Quellstruktur
 
-Beim Verbinden einer Quelle darf lingl-docs nicht ungefragt alle Kunden und Maschinen in SharePoint oder Nextcloud anlegen. Der Administrator wählt eine von zwei Betriebsarten.
+Beim Verbinden einer Quelle darf werkpass nicht ungefragt alle Kunden und Maschinen in SharePoint oder Nextcloud anlegen. Der Administrator wählt eine von zwei Betriebsarten.
 
-### Variante 1: Struktur durch lingl-docs verwalten
+### Variante 1: Struktur durch werkpass verwalten
 
 Diese Variante eignet sich für neue oder noch nicht einheitlich organisierte Ablagen.
 
 Beim Einrichten wählt der Administrator zunächst einen Stammordner, beispielsweise:
 
 ```text
-/lingl-docs-Freigaben
+/werkpass-Freigaben
 ```
 
-Anschließend wählt er aus, welche Kunden und Maschinen synchronisiert werden sollen. Vor dem Anlegen zeigt lingl-docs eine Vorschau der geplanten Struktur:
+Anschließend wählt er aus, welche Kunden und Maschinen synchronisiert werden sollen. Vor dem Anlegen zeigt werkpass eine Vorschau der geplanten Struktur:
 
 ```text
-/lingl-docs-Freigaben
+/werkpass-Freigaben
   /10023 - Muster GmbH
     /SN-4711 - Schleifmaschine
       /Betriebsanleitungen
@@ -420,7 +420,7 @@ Anschließend wählt er aus, welche Kunden und Maschinen synchronisiert werden s
       /Zeichnungen
 ```
 
-Wird später eine neue Maschine in lingl-docs angelegt, kann der Dialog folgende Option anbieten:
+Wird später eine neue Maschine in werkpass angelegt, kann der Dialog folgende Option anbieten:
 
 ```text
 ☑ Ordner in SharePoint oder Nextcloud erstellen
@@ -428,7 +428,7 @@ Wird später eine neue Maschine in lingl-docs angelegt, kann der Dialog folgende
 
 Die automatische Ordneranlage muss immer bewusst bestätigt werden. Sie wird nicht standardmäßig für alle vorhandenen Kunden und Maschinen ausgeführt.
 
-lingl-docs speichert zu jedem erzeugten Ordner die externe SharePoint- oder Nextcloud-ID. Die Zuordnung darf nicht ausschließlich vom sichtbaren Pfad abhängen. Dadurch bleibt sie auch erhalten, wenn ein Benutzer einen Kunden-, Maschinen- oder Dokumentordner umbenennt oder verschiebt.
+werkpass speichert zu jedem erzeugten Ordner die externe SharePoint- oder Nextcloud-ID. Die Zuordnung darf nicht ausschließlich vom sichtbaren Pfad abhängen. Dadurch bleibt sie auch erhalten, wenn ein Benutzer einen Kunden-, Maschinen- oder Dokumentordner umbenennt oder verschiebt.
 
 Erforderliche Berechtigungen:
 
@@ -442,21 +442,21 @@ Die verwaltete Struktur erfordert damit Schreibzugriff auf den ausgewählten Sta
 
 ### Variante 2: Bestehende Struktur zuordnen
 
-Diese Variante eignet sich für Unternehmen mit einer bereits etablierten Dokumentenablage. lingl-docs erstellt keine Ordner, sondern verbindet vorhandene Quellordner mit Maschinenakten.
+Diese Variante eignet sich für Unternehmen mit einer bereits etablierten Dokumentenablage. werkpass erstellt keine Ordner, sondern verbindet vorhandene Quellordner mit Maschinenakten.
 
 Beispiel:
 
 ```text
 SharePoint: /Technik/Aufträge/4711/Enddokumentation
                             ↓
-lingl-docs: Muster GmbH / Schleifmaschine / Betriebsanleitungen
+werkpass: Muster GmbH / Schleifmaschine / Betriebsanleitungen
 ```
 
 Der Administrator wählt dabei:
 
 1. vorhandenen Quellordner
-2. Kunden in lingl-docs
-3. Maschine in lingl-docs
+2. Kunden in werkpass
+3. Maschine in werkpass
 4. Zielordner der Maschinenakte
 5. Freigaberegel
 
@@ -468,7 +468,7 @@ In dieser Betriebsart genügt im einfachsten Fall lesender Zugriff. Sie ist dahe
 
 Langfristig sollten beide Varianten angeboten werden:
 
-- **Neue Struktur durch lingl-docs erstellen**
+- **Neue Struktur durch werkpass erstellen**
 - **Vorhandenen Ordner zuordnen**
 
 Für einen ersten internen MVP ist die verwaltete Struktur einfacher, weil Ordnernamen und Zuordnungsregeln kontrolliert werden können. Der gemeinsame Datenkern muss trotzdem beide Varianten unterstützen, damit Kunden später nicht zur Migration ihrer bestehenden Ablage gezwungen werden.
@@ -496,14 +496,14 @@ Beispiel für eine Datei in einer verwalteten Struktur:
       /Betriebsanleitung.pdf
 ```
 
-Aus der gespeicherten Ordnerzuordnung kennt lingl-docs:
+Aus der gespeicherten Ordnerzuordnung kennt werkpass:
 
 - Kunde: Muster GmbH
 - Maschine: Schleifmaschine
 - Maschinenordner: Betriebsanleitungen
 - Quelle: SharePoint oder Nextcloud
 
-Beim ersten Import wird ein lokales Dokument angelegt und die Datei als erste in lingl-docs vorhandene Version gespeichert. Wird dieselbe externe Datei später aktualisiert, entsteht eine neue `DocumentVersion`. Die vorherige Version bleibt archiviert und der QR-Code der Maschine unverändert.
+Beim ersten Import wird ein lokales Dokument angelegt und die Datei als erste in werkpass vorhandene Version gespeichert. Wird dieselbe externe Datei später aktualisiert, entsteht eine neue `DocumentVersion`. Die vorherige Version bleibt archiviert und der QR-Code der Maschine unverändert.
 
 ### Stabiler Dokumentname und fachliche Revision
 
@@ -529,7 +529,7 @@ Betriebsanleitung_V4.pdf
 Betriebsanleitung_V5.pdf
 ```
 
-In diesem Fall benötigt lingl-docs zusätzlich einen stabilen Dokumentschlüssel, damit V4 und V5 als Revisionen desselben Dokuments erkannt werden. Der Schlüssel kann durch ein konfiguriertes Dateinamensmuster bestimmt werden:
+In diesem Fall benötigt werkpass zusätzlich einen stabilen Dokumentschlüssel, damit V4 und V5 als Revisionen desselben Dokuments erkannt werden. Der Schlüssel kann durch ein konfiguriertes Dateinamensmuster bestimmt werden:
 
 ```text
 Dokumentschlüssel: Betriebsanleitung
@@ -540,7 +540,7 @@ Ohne Metadaten oder ein bestätigtes Dateinamensmuster darf eine neu benannte Da
 
 ### Auswirkungen von Änderungen in der Quelle
 
-| Änderung in SharePoint oder Nextcloud | Verhalten in lingl-docs |
+| Änderung in SharePoint oder Nextcloud | Verhalten in werkpass |
 |---|---|
 | Inhalt derselben Datei geändert | Neue Revision anlegen, sofern die Prüfsumme neu ist |
 | Datei umbenannt | Binding über externe Datei-ID behalten und Anzeigename aktualisieren |
@@ -549,9 +549,9 @@ Ohne Metadaten oder ein bestätigtes Dateinamensmuster darf eine neu benannte Da
 | neue Datei ohne eindeutige Zuordnung | In die Prüfliste aufnehmen |
 | Datei gelöscht | Historie nicht löschen; Binding als extern entfernt markieren |
 | Ordner umbenannt | Mapping über externe Ordner-ID behalten |
-| Maschine in lingl-docs umbenannt | optional sichtbaren Quellordner umbenennen, Mapping bleibt stabil |
+| Maschine in werkpass umbenannt | optional sichtbaren Quellordner umbenennen, Mapping bleibt stabil |
 
-Die automatische Umbenennung externer Ordner sollte eine separate Einstellung sein. Standardmäßig aktualisiert lingl-docs nur seine Anzeige und behält die bestehende externe Ordnerstruktur bei.
+Die automatische Umbenennung externer Ordner sollte eine separate Einstellung sein. Standardmäßig aktualisiert werkpass nur seine Anzeige und behält die bestehende externe Ordnerstruktur bei.
 
 ## Benutzeroberfläche
 
@@ -712,7 +712,7 @@ Nextcloud eignet sich als erster echter Connector, weil WebDAV vergleichsweise g
 - Welche Quelle soll zuerst produktiv unterstützt werden?
 - Erfolgt die Freigabe über Metadaten oder einen Freigabeordner?
 - Soll der historische Erstimport im MVP enthalten sein?
-- Dürfen externe Änderungen sofort veröffentlicht werden oder ist eine Bestätigung in lingl-docs erforderlich?
+- Dürfen externe Änderungen sofort veröffentlicht werden oder ist eine Bestätigung in werkpass erforderlich?
 - Welche maximalen Dateigrößen und MIME-Types gelten pro Organisation?
 - Wie werden Konflikte zwischen manuellem Upload und Connector behandelt?
 - Wird eine extern gelöschte aktuelle Datei weiterhin veröffentlicht oder zurückgezogen?

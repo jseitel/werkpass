@@ -7,7 +7,7 @@ Datum: 2026-08-07
 
 docks.io liefert Maschinendokumentation per QR-Code aus (EU-Verordnung 2023/1230, Deadline 20.01.2027), gehostet in Deutschland, DSGVO-konform, ohne App/Login für Endnutzer, mit 10 Jahre garantierter URL-Stabilität und Preisstufen Starter/Professional/Enterprise (SSO, API).
 
-Wir starten **intern** (nur Lingl-eigene Maschinen, ein Mandant), bauen die Architektur aber von Anfang an **mandantenfähig**, damit ein späterer Ausbau zu einem verkaufbaren SaaS-Produkt keinen Rewrite erfordert. Zentrale Anforderung: **Migrationsfähigkeit** – kein Layer darf so gewählt werden, dass ein Anbieterwechsel (Hosting, Auth, Storage, Datenbank) einen Rewrite statt einer Config-Änderung bedeutet.
+Wir starten **intern** (nur eigene Maschinen, ein Mandant), bauen die Architektur aber von Anfang an **mandantenfähig**, damit ein späterer Ausbau zu einem verkaufbaren SaaS-Produkt keinen Rewrite erfordert. Zentrale Anforderung: **Migrationsfähigkeit** – kein Layer darf so gewählt werden, dass ein Anbieterwechsel (Hosting, Auth, Storage, Datenbank) einen Rewrite statt einer Config-Änderung bedeutet.
 
 Gewählter Hosting-Standort: **Hetzner Cloud** (Deutschland) – passt zur "hosted in Germany"-Erzählung von docks.io und ist günstig sowie frei von proprietären Cloud-Diensten.
 
