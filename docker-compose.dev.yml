@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: lingl-docs-postgres
+    container_name: werkpass-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: lingl_docs
+      POSTGRES_DB: werkpass
     ports:
       - "5432:5432"
     volumes:
@@ -16,7 +16,7 @@ services:
   # see infra/garage/garage.toml.example for the template).
   garage:
     image: dxflrs/garage:v1.0.1
-    container_name: lingl-docs-garage
+    container_name: werkpass-garage
     ports:
       - "3900:3900" # S3 API
       - "3901:3901" # RPC

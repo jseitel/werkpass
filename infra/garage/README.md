@@ -16,17 +16,17 @@ points the same code at Hetzner Object Storage instead.
 2. Start the containers: `docker compose -f docker-compose.dev.yml up -d`
 3. Assign the single-node layout (only needed once per fresh `garage-meta` volume):
    ```sh
-   docker exec lingl-docs-garage /garage status   # copy the node ID
-   docker exec lingl-docs-garage /garage layout assign -z dc1 -c 1G <node-id>
-   docker exec lingl-docs-garage /garage layout apply --version 1
+   docker exec werkpass-garage /garage status   # copy the node ID
+   docker exec werkpass-garage /garage layout assign -z dc1 -c 1G <node-id>
+   docker exec werkpass-garage /garage layout apply --version 1
    ```
 4. Create an access key and the dev bucket. `--owner` is required (not just
    `--read --write`) so the key is also allowed to set the bucket's CORS
    policy in the next step:
    ```sh
-   docker exec lingl-docs-garage /garage key create lingl-docs-web
-   docker exec lingl-docs-garage /garage bucket create lingl-docs-dev
-   docker exec lingl-docs-garage /garage bucket allow --read --write --owner --key lingl-docs-web lingl-docs-dev
+   docker exec werkpass-garage /garage key create werkpass-web
+   docker exec werkpass-garage /garage bucket create werkpass-dev
+   docker exec werkpass-garage /garage bucket allow --read --write --owner --key werkpass-web werkpass-dev
    ```
 5. Put the printed Key ID / Secret key into `apps/web/.env.local` as
    `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` (endpoint/region/bucket are
