@@ -23,8 +23,13 @@ export async function GET(
   // Deny by default: anything other than the explicit "public" level must
   // clear the folder-unlock check, so a future access level added without
   // updating this route fails closed instead of leaking documents.
+  //
+  // The folder is the authority - the document only carries a copy of the
+  // level taken when it was created, so both have to read "public" before the
+  // PIN check is skipped.
   if (
-    version.document.accessLevel !== "public" &&
+    (folder.accessLevel !== "public" ||
+      version.document.accessLevel !== "public") &&
     !isFolderUnlocked(
       machineSlug,
       folder.id,
@@ -35,6 +40,8 @@ export async function GET(
     return NextResponse.json({ error: "PIN required" }, { status: 403 });
   }
 
-  const url = await getDownloadUrl(version.storageKey);
+  const url = await getDownloadUrl(version.storageKey, {
+    fileName: version.fileName,
+  });
   return NextResponse.redirect(url);
 }
